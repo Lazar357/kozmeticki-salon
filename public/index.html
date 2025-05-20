@@ -18,7 +18,7 @@
   <div class="container">
     <nav class="navbar navbar-expand-lg bg-body-tertiary navbar-nav">
       <div class="container-fluid">
-        <a class="navbar-brand" href="./index.html"><img src="./pictures/singidunum.png"></a>
+        <a class="navbar-brand" href="./index.html"><img src="./pictures/singidunum.png" class="main-logo"></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -53,122 +53,14 @@
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="./contact.html">Kontakt</a>
-              </li>
-                     
+              </li>                   
           </ul>
         </div>
       </div>
     </nav>
   </div>
-  <div class="container py-5">
-    <h1 class="mb-4">Zakazivanje termina</h1>
+  
 
-    <div class="card mb-4">
-      <div class="card-header">Dodaj novi termin</div>
-      <div class="card-body">
-        <form id="appointment-form">
-          <div class="row g-3">
-            <div class="col-md-4">
-              <input type="text" id="userId" class="form-control" placeholder="ID korisnika" required>
-            </div>
-            <div class="col-md-4">
-              <select id="serviceId" class="form-select" required></select>
-            </div>
-            <div class="col-md-2">
-              <input type="date" id="date" class="form-control" required>
-            </div>
-            <div class="col-md-2">
-              <input type="time" id="time" class="form-control" required>
-            </div>
-          </div>
-          <button type="submit" class="btn btn-primary mt-3">Sačuvaj</button>
-        </form>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">Svi termini</div>
-      <div class="card-body">
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th>
-                <i class="fa-solid fa-hashtag"></i> ID
-            </th>
-              <th>
-                <i class="fa-solid fa-user"></i> Korisnik
-            </th>
-              <th>
-                <i class="fa-solid fa-bars"></i> Usluga
-              </th>
-              <th>
-                <i class="fa-solid fa-calendar-days"></i> Datum
-              </th>
-              <th>
-                <i class="fa-solid fa-clock"></i> Vreme
-              </th>
-              <th>
-                <i class="fa-solid fa-gear"></i> Akcije
-              </th>
-            </tr>
-          </thead>
-          <tbody id="appointments"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const apiUrl = 'http://localhost:8080/api';
-
-    async function loadServices() {
-      const response = await fetch(`${apiUrl}/services`);
-      const services = await response.json();
-      const select = document.getElementById('serviceId');
-      select.innerHTML = services.map(s => `<option value="${s.id}">${s.name} - ${s.price}€</option>`).join('');
-    }
-
-    async function loadAppointments() {
-      const res = await fetch(`${apiUrl}/appointments`);
-      const data = await res.json();
-      const tbody = document.getElementById('appointments');
-      tbody.innerHTML = data.map(a => `
-        <tr>
-          <td>${a.id}</td>
-          <td>${a.user.id}</td>
-          <td>${a.service.name}</td>
-          <td>${a.appointmentDate}</td>
-          <td>${a.appointmentTime}</td>
-          <td>
-            <button onclick="deleteAppointment(${a.id})" class="btn btn-danger btn-sm">Obriši</button>
-          </td>
-        </tr>`).join('');
-    }
-
-    async function deleteAppointment(id) {
-      await fetch(`${apiUrl}/appointments/${id}`, { method: 'DELETE' });
-      loadAppointments();
-    }
-
-    document.getElementById('appointment-form').addEventListener('submit', async e => {
-      e.preventDefault();
-      const appointment = {
-        user: { id: document.getElementById('userId').value },
-        service: { id: document.getElementById('serviceId').value },
-        appointmentDate: document.getElementById('date').value,
-        appointmentTime: document.getElementById('time').value
-      };
-      await fetch(`${apiUrl}/appointments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(appointment)
-      });
-      e.target.reset();
-      loadAppointments();
-    });
-
-    loadServices();
-    loadAppointments();
-  </script>
+ 
 </body>
 </html>
