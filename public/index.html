@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frizerski Salon</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<style>
+        .main-logo{
+            width: 50px;
+            height: 50px;
+        }
+    </style>
+</head>
+<body class="bg-dark" data-bs-theme="dark">
+  <div class="container">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary navbar-nav">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="./index.html"><img src="./pictures/singidunum.png"></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="./index.html">Pocetna</a>
+            </li>
+            
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Usluge
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="services/tretman-lica.html">Tretmani lica</a></li>
+                  <li><a class="dropdown-item" href="services/frizer.html">Frizerske usluge</a></li>
+                  <li><a class="dropdown-item" href="services/depilacija.html">Depilacija</a></li>
+                  <li><a class="dropdown-item" href="services/epilacija.html">Epilacija</a></li>
+                  <li><a class="dropdown-item" href="services/pedikir.html">Pedikir</a></li>
+                  <li><a class="dropdown-item" href="services/manikir.html">Manikir</a></li>
+                  <li><a class="dropdown-item" href="services/masaza.html">Masaza</a></li>
+                </ul>
+              </li>
+            <li class="nav-item">
+                <a class="nav-link" href="./about.html">O nama</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="./price.html">Cenovnik</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="./appoint.html">Zakazivanje</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="./contact.html">Kontakt</a>
+              </li>
+                     
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </div>
+  <div class="container py-5">
+    <h1 class="mb-4">Zakazivanje termina</h1>
+
+    <div class="card mb-4">
+      <div class="card-header">Dodaj novi termin</div>
+      <div class="card-body">
+        <form id="appointment-form">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <input type="text" id="userId" class="form-control" placeholder="ID korisnika" required>
+            </div>
+            <div class="col-md-4">
+              <select id="serviceId" class="form-select" required></select>
+            </div>
+            <div class="col-md-2">
+              <input type="date" id="date" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+              <input type="time" id="time" class="form-control" required>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary mt-3">Sačuvaj</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Svi termini</div>
+      <div class="card-body">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>
+                <i class="fa-solid fa-hashtag"></i> ID
+            </th>
+              <th>
+                <i class="fa-solid fa-user"></i> Korisnik
+            </th>
+              <th>
+                <i class="fa-solid fa-bars"></i> Usluga
+              </th>
+              <th>
+                <i class="fa-solid fa-calendar-days"></i> Datum
+              </th>
+              <th>
+                <i class="fa-solid fa-clock"></i> Vreme
+              </th>
+              <th>
+                <i class="fa-solid fa-gear"></i> Akcije
+              </th>
+            </tr>
+          </thead>
+          <tbody id="appointments"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const apiUrl = 'http://localhost:8080/api';
+
+    async function loadServices() {
+      const response = await fetch(`${apiUrl}/services`);
+      const services = await response.json();
+      const select = document.getElementById('serviceId');
+      select.innerHTML = services.map(s => `<option value="${s.id}">${s.name} - ${s.price}€</option>`).join('');
+    }
+
+    async function loadAppointments() {
+      const res = await fetch(`${apiUrl}/appointments`);
+      const data = await res.json();
+      const tbody = document.getElementById('appointments');
+      tbody.innerHTML = data.map(a => `
+        <tr>
+          <td>${a.id}</td>
+          <td>${a.user.id}</td>
+          <td>${a.service.name}</td>
+          <td>${a.appointmentDate}</td>
+          <td>${a.appointmentTime}</td>
+          <td>
+            <button onclick="deleteAppointment(${a.id})" class="btn btn-danger btn-sm">Obriši</button>
+          </td>
+        </tr>`).join('');
+    }
+
+    async function deleteAppointment(id) {
+      await fetch(`${apiUrl}/appointments/${id}`, { method: 'DELETE' });
+      loadAppointments();
+    }
+
+    document.getElementById('appointment-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const appointment = {
+        user: { id: document.getElementById('userId').value },
+        service: { id: document.getElementById('serviceId').value },
+        appointmentDate: document.getElementById('date').value,
+        appointmentTime: document.getElementById('time').value
+      };
+      await fetch(`${apiUrl}/appointments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(appointment)
+      });
+      e.target.reset();
+      loadAppointments();
+    });
+
+    loadServices();
+    loadAppointments();
+  </script>
+</body>
+</html>
